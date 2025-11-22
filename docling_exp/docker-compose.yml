@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  docling-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docling-service
+    ports:
+      - "${SERVICE_PORT:-8000}:8000"
+    volumes:
+      # Монтируем конфигурацию (опционально, для изменения без пересборки)
+      - ./config.yaml:/app/config.yaml:ro
+      # Монтируем кэш моделей для сохранения между перезапусками
+      - docling-models-cache:/app/models_cache
+      # Монтируем директорию для временных файлов (опционально)
+      - docling-temp:/tmp/docling
+    environment:
+      - DOCLING_CONFIG_PATH=/app/config.yaml
+      - DOCLING_CACHE_DIR=/app/models_cache
+      - HF_HOME=/app/models_cache
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    restart: unless-stopped
+    # Поддержка GPU через nvidia
+    deploy:
+      resources:
+        limits:
+          memory: 8G  # Рекомендуется минимум 4GB, лучше 8GB для моделей
+        reservations:
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: ${GPU_COUNT:-1}
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s  # Даем время на загрузку моделей при первом запуске
+
+volumes:
+  docling-models-cache:
+    driver: local
+  docling-temp:
+    driver: local
+

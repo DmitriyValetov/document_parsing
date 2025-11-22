@@ -1,0 +1,63 @@
+# Конфигурация Docling Service
+
+# Настройки сервера
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  reload: false  # для production установить false
+
+# Настройки Docling
+docling:
+  # Максимальный размер загружаемого файла (в байтах)
+  max_file_size: 104857600  # 100 MB
+  
+  # Временная директория для обработки файлов
+  temp_dir: "/tmp/docling"
+  
+  # Настройки конвертера
+  converter:
+    # Использовать VLM (Visual Language Model) для расширенного анализа
+    # ПРИМЕНЯЕТСЯ: настройка передается в DocumentConverter через pipeline_options
+    enable_vlm: false
+    vlm_model: "granite_docling"  # granite_docling или другой VLM
+    # Использовать GPU для ускорения обработки
+    use_gpu: true  # true = использовать GPU если доступно, false = только CPU
+
+# Настройки форматов вывода
+output:
+  # Поддерживаемые форматы вывода
+  formats:
+    - markdown
+    - json
+    - html
+  
+  # Формат по умолчанию
+  default_format: "markdown"
+  
+  # Настройки JSON экспорта
+  # ПРИМЕНЯЕТСЯ: pretty используется при сериализации JSON
+  json:
+    pretty: true  # Форматированный JSON с отступами
+    include_metadata: true  # Включать метаданные в ответ
+  
+  # Настройки HTML экспорта
+  # ПРИМЕНЯЕТСЯ: параметры передаются в export_to_html() если API поддерживает
+  html:
+    include_styles: true  # Включать CSS стили
+    include_images: true  # Включать изображения
+
+# Настройки кэширования моделей
+models:
+  # Директория для кэширования моделей
+  cache_dir: null  # null = использовать системный кэш
+  
+  # Предзагрузка моделей при старте (может замедлить старт)
+  preload: false
+
+# Логирование
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "json"  # json, text
+  file: null  # путь к файлу логов, null = только консоль
+
