@@ -255,6 +255,10 @@ docker-compose -f docker-compose.yaml down
 
 Использование vLLM сервера для обработки PDF через VLM (Visual Language Model) pipeline.
 
+Using: granite-docling-258M
+
+To be done: SmolVLM https://arxiv.org/pdf/2503.11576 
+
 ## Prepare
 
 ```bash
