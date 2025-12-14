@@ -257,6 +257,8 @@ docker-compose -f docker-compose.yaml down
 
 Using: granite-docling-258M
 
+Issue: granite-docling-258M - cpu/gpu speed same?
+
 To be done: SmolVLM https://arxiv.org/pdf/2503.11576 
 
 ## Prepare
