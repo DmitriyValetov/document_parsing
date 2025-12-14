@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  docling-serve:
+    image: quay.io/docling-project/docling-serve:latest
+    container_name: docling-serve
+    ports:
+      - "${DOCLING_SERVE_PORT:-5001}:5001"
+    volumes:
+      # Кэш моделей для сохранения между перезапусками
+      - docling-models-cache:/root/.cache/docling
+      - docling-hf-cache:/root/.cache/huggingface
+      # Директория для входных файлов (опционально)
+      - ./input:/app/input:ro
+      # Директория для выходных файлов
+      - ./output:/app/output
+    environment:
+      - DOCLING_SERVE_ENABLE_UI=1
+      - DOCLING_SERVE_HOST=0.0.0.0
+      - DOCLING_SERVE_PORT=5001
+      # Опционально: настройки для GPU
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    restart: unless-stopped
+    # Поддержка GPU
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+          devices:
+            - driver: nvidia
+              count: ${GPU_COUNT:-1}  # По умолчанию 1 GPU (синтаксис: ${VAR:-default_value})
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  # Время на загрузку моделей при первом запуске
+
+volumes:
+  docling-models-cache:
+    driver: local
+  docling-hf-cache:
+    driver: local

@@ -2,18 +2,12 @@
 
 Проект для парсинга документов на основе Docling.
 
-## Структура проекта
+## Компоненты
 
-Все компоненты сервиса находятся в папке `docling_exp/`.
+- **simple** - простые скрипты для обработки PDF
+- **serve** - веб-сервис с API (`http://localhost:5001`)
+- **vllm_serve** - обработка через vLLM с GPU ускорением
 
-## Быстрый старт
+## Документация
 
-```bash
-cd docling_exp
-docker-compose up --build -d
-```
-
-Подробная документация находится в [docling_exp/README.md](docling_exp/README.md).
-
-## Tools:
-1) Docling
+Подробная документация: [docling/readme.md](docling/readme.md)
