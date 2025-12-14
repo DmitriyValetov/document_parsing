@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  pymupdf-serve:
+    build: .
+    container_name: pymupdf-serve
+    ports:
+      - "${PYMUPDF_PORT:-8000}:8000"
+    volumes:
+      # Директория для входных файлов
+      - ./input:/app/input:ro
+      # Директория для выходных файлов
+      - ./output:/app/output
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
