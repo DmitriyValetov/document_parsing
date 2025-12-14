@@ -1,0 +1,50 @@
+services:
+  vllm-server:
+    image: vllm/vllm-openai:latest
+    container_name: vllm-granite-server
+    ports:
+      - "8000:8000"
+    command: ["ibm-granite/granite-docling-258M", "--host", "0.0.0.0", "--port", "8000", "--max-num-seqs", "512", "--max-num-batched-tokens", "8192", "--enable-chunked-prefill", "--gpu-memory-utilization", "0.7"]
+    volumes:
+      - vllm-models-cache:/root/.cache/huggingface
+    environment:
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${GPU_COUNT:-1}
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s
+
+  infer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vllm-infer
+    depends_on:
+      vllm-server:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - ../simple/files:/app/files:ro
+      - infer-output:/app/output
+    environment:
+      - VLLM_URL=http://vllm-server:8000/v1/chat/completions
+      - INPUT_DOC_PATH=${INPUT_DOC_PATH:-/app/files/2408.09869v5.pdf}
+    working_dir: /app
+    command: python infer.py
+    restart: "no"
+
+volumes:
+  vllm-models-cache:
+    driver: local
+  infer-output:
+    driver: local
