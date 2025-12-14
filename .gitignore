@@ -3,6 +3,10 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+output/
+files/
+docling_exp/
+
 # C extensions
 *.so
 env/
