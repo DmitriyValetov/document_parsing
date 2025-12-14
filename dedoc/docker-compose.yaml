@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  dedoc:
+    image: dedocproject/dedoc
+    container_name: dedoc
+    ports:
+      - "${DEDOC_PORT:-1231}:1231"
+    volumes:
+      # Директория для входных файлов
+      - ./input:/app/input:ro
+      # Директория для выходных файлов (опционально)
+      - ./output:/app/output
+    environment:
+      - DEDOC_PORT=1231
+    restart: unless-stopped
